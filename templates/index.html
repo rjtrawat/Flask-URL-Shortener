@@ -30,9 +30,12 @@
                 </form>
 
                 {% if short_url %}
-                <div class="alert alert-success mt-3">
-                    <strong>Success!</strong> Your short link is: 
-                    <a href="{{ short_url }}" target="_blank">{{ short_url }}</a>
+                <div class="alert alert-success mt-4">
+                    <h5 class="alert-heading mb-3">🎉 Success! Here is your short link:</h5>
+                    <div class="input-group">
+                        <input type="text" class="form-control form-control-lg bg-white" id="shortLinkInput" value="{{ short_url }}" readonly>
+                        <button class="btn btn-success px-4" type="button" onclick="copyToClipboard(this)">Copy</button>
+                    </div>
                 </div>
                 {% endif %}
             </div>
@@ -59,6 +62,27 @@
         </div>
     </div>
 </div>
+<script>
+    function copyToClipboard(buttonElement) {
+        // Find the input box using its ID
+        var copyText = document.getElementById("shortLinkInput");
 
+        // Use the modern Navigator API to copy the text
+        navigator.clipboard.writeText(copyText.value).then(function() {
+            // Give the user visual feedback by changing the button text
+            var originalText = buttonElement.innerHTML;
+            buttonElement.innerHTML = "Copied! ✔️";
+            buttonElement.classList.replace("btn-success", "btn-dark");
+
+            // Change it back after 2 seconds
+            setTimeout(function() {
+                buttonElement.innerHTML = originalText;
+                buttonElement.classList.replace("btn-dark", "btn-success");
+            }, 2000);
+        }).catch(function(err) {
+            console.error('Failed to copy text: ', err);
+        });
+    }
+</script>
 </body>
 </html>
