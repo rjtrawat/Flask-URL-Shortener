@@ -21,6 +21,16 @@
 <div class="container" style="margin-top: -30px;">
     <div class="row justify-content-center">
         <div class="col-md-8">
+            {% with messages = get_flashed_messages() %}
+              {% if messages %}
+                {% for message in messages %}
+                  <div class="alert alert-warning alert-dismissible fade show shadow-sm" role="alert">
+                    <strong>Notice:</strong> {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
             <div class="card p-4 mb-4">
                 <form method="post">
                     <div class="input-group mb-3">

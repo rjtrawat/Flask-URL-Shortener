@@ -1,6 +1,7 @@
 import sqlite3
 import string
 import random
+from datetime import datetime, timedelta
 from flask import Flask, render_template, request, flash, redirect, url_for
 
 app = Flask(__name__)
@@ -38,16 +39,23 @@ def index():
         short_url = request.host_url + short_code
         return render_template('index.html', short_url=short_url)
 
-    history = conn.execute('SELECT * FROM urls ORDER BY id DESC LIMIT 5').fetchall()
+    history = conn.execute("SELECT * FROM urls WHERE created >= datetime('now', '-24 hours') ORDER BY id DESC LIMIT 5").fetchall()
     conn.close()
     return render_template('index.html', history=history)
 
 @app.route('/<string:code>')
 def url_redirect(code):
     conn = get_db_connection()
-    url_details = conn.execute('SELECT id, original_url, clicks FROM urls WHERE short_code = ?', (code,)).fetchone()
+    url_details = conn.execute('SELECT id, original_url, clicks, created FROM urls WHERE short_code = ?', (code,)).fetchone()
     
     if url_details:
+        created_time = datetime.strptime(url_details['created'], '%Y-%m-%d %H:%M:%S')
+        
+        if datetime.utcnow() > created_time + timedelta(hours=72):
+            conn.close()
+            flash('This link has expired!')
+            return redirect(url_for('index'))
+        
         original_url = url_details['original_url']
         clicks = url_details['clicks'] + 1
         conn.execute('UPDATE urls SET clicks = ? WHERE id = ?', (clicks, url_details['id']))
